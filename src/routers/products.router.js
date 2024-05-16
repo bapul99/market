@@ -2,7 +2,6 @@ import express from 'express';
 import Products from '../schemas/product.schema.js';
 import asyncHandler from 'express-async-handler';
 
-
 const router = express.Router();
 
 // 상품 생성 API
@@ -11,27 +10,17 @@ router.post('/', asyncHandler(async (req, res) => {
   const createdAt = new Date();
   const updatedAt = new Date();
 
-  await joiSchema.createSchema.validateAsync({
+  const createdProducts = await Products.create({
     name,
     description,
     manager,
     password,
     status,
-  });
-
-  const hashedPassword = await hashPassword(password);
-
-  const createdProducts = await Products.create({
-    name,
-    description,
-    manager,
-    password: hashedPassword,
-    status,
     createdAt,
     updatedAt,
   });
 
-  const { password: _, __v: a, ...resProducts } = createdProducts.toObject();
+  const { password: _, __v: __, ...resProducts } = createdProducts.toObject();
 
   return res
     .status(201)
@@ -53,11 +42,11 @@ router.get('/', asyncHandler(async (req, res) => {
 // 상품 상세 조회 API
 router.get('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
-  await joiSchema.findSchema.validateAsync({ productsId });
+
   const findProducts = await Products.findById(productsId)
     .select('-password -__v')
     .exec();
-  
+
   if (!findProducts) {
     return res
       .status(404)
@@ -74,7 +63,7 @@ router.get('/:productsId', asyncHandler(async (req, res) => {
 router.delete('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
   const { password } = req.body;
-  await joiSchema.findSchema.validateAsync({ productsId });
+
   const findProducts = await Products.findById(productsId).exec();
 
   if (!findProducts) {
@@ -83,10 +72,7 @@ router.delete('/:productsId', asyncHandler(async (req, res) => {
       .json({ errorMessage: '상품이 존재하지 않습니다.' });
   }
 
-  await joiSchema.deleteSchema.validateAsync({ password });
-
-  const isPasswordMatch = await comparePassword(password, findProducts.password);
-  if (!isPasswordMatch) {
+  if (password !== findProducts.password) {
     return res
       .status(401)
       .json({ errorMessage: '비밀번호가 일치하지 않습니다.' });
@@ -104,41 +90,30 @@ router.put('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
   const { name, description, manager, status, password } = req.body;
 
-  await joiSchema.findSchema.validateAsync({ productsId });
+  const targetProducts = await Products.findById(productsId).exec();
 
-  const targetProduts = await Products.findById(productsId).exec();
-
-  if (!targetProduts) {
+  if (!targetProducts) {
     return res
       .status(404)
       .json({ errorMessage: '상품이 존재하지 않습니다.' });
   }
 
-  await joiSchema.patchSchema.validateAsync({
-    name,
-    description,
-    manager,
-    status,
-    password,
-  });
-
-  const isPasswordMatch = await comparePassword(password, targetProduts.password);
-  if (!isPasswordMatch) {
+  if (password !== targetProducts.password) {
     return res
       .status(401)
       .json({ errorMessage: '비밀번호가 일치하지 않습니다.' });
   }
 
-  targetProduts.name = name;
-  targetProduts.description = description;
-  targetProduts.manager = manager;
-  targetProduts.status = status;
-  targetProduts.password = await hashPassword(password);
-  targetProduts.updatedAt = new Date();
+  targetProducts.name = name;
+  targetProducts.description = description;
+  targetProducts.manager = manager;
+  targetProducts.status = status;
+  targetProducts.password = password;
+  targetProducts.updatedAt = new Date();
 
-  await targetProduts.save();
+  await targetProducts.save();
 
-  const { password: _, __v: a, ...resProducts } = targetProduts.toObject();
+  const { password: _, __v: __, ...resProducts } = targetProducts.toObject();
 
   return res.status(200).json({
     message: '상품 수정에 성공했습니다.',
