@@ -6,10 +6,16 @@
   "author": "bapul99 <minyeop0423@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "dotenv": "^10.0.0",
     "express": "^4.19.2",
-    "express-async-handler": "^1.2.0",
+    "express-async-handler": "^1.1.4",
     "mongoose": "^8.3.5"
   },
-  "type": "module"
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/app.js"
+  }
 }
