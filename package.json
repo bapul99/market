@@ -1,0 +1,11 @@
+{
+  "name": "market",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/bapul99/market.git",
+  "author": "bapul99 <minyeop0423@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
