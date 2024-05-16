@@ -1,11 +1,12 @@
 import express from 'express';
-import Products from '../schemas/products.schemas.js';
-import joiSchema from '../joi.js';
+import Products from '../schemas/product.schema.js';
+import asyncHandler from 'express-async-handler';
+
 
 const router = express.Router();
 
-// 상품 생성 api
-router.post('/products', asyncHandler(async (req, res) => {
+// 상품 생성 API
+router.post('/', asyncHandler(async (req, res) => {
   const { name, description, manager, password, status } = req.body;
   const createdAt = new Date();
   const updatedAt = new Date();
@@ -37,8 +38,8 @@ router.post('/products', asyncHandler(async (req, res) => {
     .json({ message: '상품 생성에 성공했습니다.', goods: resProducts });
 }));
 
-// 상품 목록 조회 api
-router.get('/products', asyncHandler(async (req, res) => {
+// 상품 목록 조회 API
+router.get('/', asyncHandler(async (req, res) => {
   const productsItem = await Products.find()
     .sort('-createdAt')
     .select('-password -__v')
@@ -49,8 +50,8 @@ router.get('/products', asyncHandler(async (req, res) => {
     .json({ message: '상품 목록 조회에 성공했습니다.', productsItem });
 }));
 
-// 상품 상세 조회 api
-router.get('/products/:productsId', asyncHandler(async (req, res) => {
+// 상품 상세 조회 API
+router.get('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
   await joiSchema.findSchema.validateAsync({ productsId });
   const findProducts = await Products.findById(productsId)
@@ -69,8 +70,8 @@ router.get('/products/:productsId', asyncHandler(async (req, res) => {
   });
 }));
 
-// 상품 삭제 api
-router.delete('/products/:productsId', asyncHandler(async (req, res) => {
+// 상품 삭제 API
+router.delete('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
   const { password } = req.body;
   await joiSchema.findSchema.validateAsync({ productsId });
@@ -98,8 +99,8 @@ router.delete('/products/:productsId', asyncHandler(async (req, res) => {
   });
 }));
 
-// 상품 수정 api
-router.put('/products/:productsId', asyncHandler(async (req, res) => {
+// 상품 수정 API
+router.put('/:productsId', asyncHandler(async (req, res) => {
   const { productsId } = req.params;
   const { name, description, manager, status, password } = req.body;
 
