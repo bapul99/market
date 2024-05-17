@@ -35,8 +35,3 @@ API의 기본 URL은: `http://localhost:3000`
     # 또는
     yarn dev
     ```
-
-4. **API 테스트**: Postman이나 cURL을 사용하여 API 엔드포인트를 테스트합니다.
-
-## 추가 정보
-자세한 사항은 [공식 문서](https://github.com/bapul99/market)를 참조하세요.
